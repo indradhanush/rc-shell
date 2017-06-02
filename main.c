@@ -15,7 +15,7 @@ struct input{
     int size_argv;
 };
 
-struct input make_input(char *);
+void make_input(struct input *, char *);
 
 void expand_argv(struct input *);
 
@@ -25,9 +25,12 @@ int main() {
     pid_t wait_result;
     int stat_loc;
     int result_execvp;
+    struct input inp;
+
     while (1) {
         command = readline("rcsh> ");
-        struct input inp = make_input(command);
+
+        make_input(&inp, command);
         if (inp.argv == NULL) {
             continue;
         }
@@ -38,7 +41,7 @@ int main() {
         if (child_pid == 0) {
             result_execvp = execvp(inp.argv[0], inp.argv);
             if (result_execvp == -1) {
-                printf("%s - An error occurred.\n", inp.argv[0]);
+                perror(inp.argv[0]);
                 exit(1);
             }
             exit(0);
@@ -49,33 +52,32 @@ int main() {
     return 0;
 }
 
-struct input make_input(char *line) {
+void make_input(struct input *inp_ptr, char *line) {
     int word_count = 0;
     int block = 4;
     static char *separator = " ";
-    struct input inp = {NULL, 0};
 
     char *parsed = strtok(line, separator);
 
     if (parsed == NULL) {
-        return inp;
+        return;
     }
 
     while (parsed != NULL) {
         if (word_count % block == 0) {
-            expand_argv(&inp);
+            expand_argv(inp_ptr);
         }
 
-        inp.argv[word_count] = parsed;
+        inp_ptr->argv[word_count] = parsed;
         parsed = strtok(NULL, separator);
         word_count++;
     }
     
-    if (inp.size_argv == word_count) {
-        realloc(inp.argv, sizeof(char *));
+    if (inp_ptr->size_argv == word_count) {
+        realloc(inp_ptr->argv, sizeof(char *));
     }
-    inp.argv[word_count] = (char *)0;
-    return inp;
+    inp_ptr->argv[word_count] = (char *)0;
+    return;
 }
 
 void expand_argv(struct input *inp_ptr) {
