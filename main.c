@@ -5,9 +5,19 @@
 #include <readline/history.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <signal.h>
+#include <setjmp.h>
 
 
 #define MEMORY_CHUNK 64
+
+/* We use 1000 as the base and add the signal no. to it to represent
+   our signal code.
+ */
+#define CODE_SIGINT 1002
+
+
+static sigjmp_buf jmpbuf;
 
 
 struct input{
@@ -19,15 +29,48 @@ struct input *make_input(struct input *, char *);
 
 struct input *expand_argv(struct input *);
 
+void sigint_handler(int);
+
+
 int main() {
     char *command;
     pid_t child_pid;
     pid_t wait_result;
     int stat_loc;
     int result_execvp;
+
     struct input *inp_ptr = NULL;
 
+    struct sigaction ignore;
+    struct sigaction default_s;
+    struct sigaction parent_sigint;
+
+    ignore.sa_handler = SIG_IGN;
+    sigemptyset(&ignore.sa_mask);
+    ignore.sa_flags = SA_RESTART;
+
+    default_s.sa_handler = SIG_DFL;
+    sigemptyset(&default_s.sa_mask);
+    default_s.sa_flags = SA_RESTART;
+
+    parent_sigint.sa_handler = sigint_handler;
+    sigemptyset(&parent_sigint.sa_mask);
+    parent_sigint.sa_flags = SA_RESTART;
+
     while (1) {
+        if (sigsetjmp(jmpbuf, 1) == CODE_SIGINT) {
+            printf("\n");
+            continue;
+        }
+
+        /* Handle SIGINT in the parent, so that it doesn't interrupt
+           the process
+        */
+        if (sigaction(SIGINT, &parent_sigint, NULL) == -1) {
+            perror("Error in setting action for SIGINT");
+            exit(1);
+        }
+
         command = readline("rcsh> ");
         inp_ptr = make_input(inp_ptr, command);
 
@@ -41,6 +84,12 @@ int main() {
         
         // The child process
         if (child_pid == 0) {
+            /* Set the default action for SIGINT in the child */
+            if (sigaction(SIGINT, &default_s, NULL) == -1) {
+                perror("Error in setting action for SGIINT");
+                exit(1);
+            }
+
             result_execvp = execvp(inp_ptr->argv[0], inp_ptr->argv);
             if (result_execvp == -1) {
                 perror(inp_ptr->argv[0]);
@@ -122,4 +171,9 @@ struct input *expand_argv(struct input *inp_ptr) {
 
     inp_ptr->size_argv = new_size_argv;
     return inp_ptr;
+}
+
+
+void sigint_handler(int signo __attribute__((unused))) {
+    siglongjmp(jmpbuf, CODE_SIGINT);
 }
