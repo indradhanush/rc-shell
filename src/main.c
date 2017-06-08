@@ -61,6 +61,11 @@ int main() {
         command = readline("rcsh> ");
         inp_ptr = make_input(inp_ptr, command);
 
+        if (command == NULL) {
+            printf("\n");
+            exit(0);
+        }
+
         if (inp_ptr == NULL) {
             // TODO: This also masks errors from functions lower down
             // in the invocation chain. Need to fix this.
