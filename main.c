@@ -9,16 +9,9 @@
 #include <setjmp.h>
 
 
+/* Input */
+
 #define MEMORY_CHUNK 64
-
-/* We use 1000 as the base and add the signal no. to it to represent
-   our signal code.
- */
-#define CODE_SIGINT 1002
-
-
-static sigjmp_buf jmpbuf;
-
 
 struct input{
     char **argv;
@@ -29,7 +22,36 @@ struct input *make_input(struct input *, char *);
 
 struct input *expand_argv(struct input *);
 
+/* Input ends here */
+
+
+/* Signal handling */
+
+/* We use 1000 as the base and add the signal no. to it to represent
+   our signal code.
+ */
+#define CODE_SIGINT 1002
+
+
+static sigjmp_buf jmpbuf;
+
 void sigint_handler(int);
+
+/* Signal handling ends here */
+
+/* Builtins */
+
+struct builtin {
+    char **commands;
+    int (*functions[]) (char *);
+};
+
+struct builtin *make_builtin();
+
+int is_builtin(struct builtin *, char *);
+int cd(char *);
+
+/* Builtins ends here */
 
 
 int main() {
@@ -38,8 +60,11 @@ int main() {
     pid_t wait_result;
     int stat_loc;
     int result_execvp;
+    int builtin_index;
 
     struct input *inp_ptr = NULL;
+
+    /* Setup signal handling */
 
     struct sigaction ignore;
     struct sigaction default_s;
@@ -56,6 +81,9 @@ int main() {
     parent_sigint.sa_handler = sigint_handler;
     sigemptyset(&parent_sigint.sa_mask);
     parent_sigint.sa_flags = SA_RESTART;
+
+    /* Setup builtins */
+    struct builtin *builtin_ptr = make_builtin();
 
     while (1) {
         if (sigsetjmp(jmpbuf, 1) == CODE_SIGINT) {
@@ -77,6 +105,13 @@ int main() {
         if (inp_ptr == NULL) {
             // TODO: This also masks errors from functions lower down
             // in the invocation chain. Need to fix this.
+            continue;
+        }
+
+        if ((builtin_index = is_builtin(builtin_ptr, inp_ptr->argv[0])) != -1) {
+            if (builtin_ptr->functions[builtin_index](inp_ptr->argv[1]) == -1) {
+                perror(inp_ptr->argv[0]);
+            }
             continue;
         }
 
@@ -109,6 +144,8 @@ int main() {
 
     return 0;
 }
+
+/* Input */
 
 struct input *make_input(struct input *inp_ptr, char *line) {
     int word_count = 0;
@@ -173,7 +210,44 @@ struct input *expand_argv(struct input *inp_ptr) {
     return inp_ptr;
 }
 
+/* Input ends here */
+
+
+/* Signal handling */
 
 void sigint_handler(int signo __attribute__((unused))) {
     siglongjmp(jmpbuf, CODE_SIGINT);
 }
+
+/* Signal handling ends here */
+
+
+/* Builtins */
+
+struct builtin *make_builtin() {
+    static struct builtin s;
+    s.commands = malloc(sizeof(2 * sizeof(char *)));
+    s.commands[0] = "cd";
+    s.commands[1] = NULL;
+
+    s.functions[0] = cd;
+
+    return &s;
+}
+
+int is_builtin(struct builtin *builtin_ptr, char *command) {
+    unsigned int i = 0;
+
+    for(i=0; builtin_ptr->commands[i] != NULL; i++) {
+        if (strcmp(builtin_ptr->commands[i], command) == 0)
+            return i;
+    }
+
+    return -1;
+}
+
+int cd(char *path) {
+    return chdir(path);
+}
+
+/* Builtins ends here */
