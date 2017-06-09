@@ -13,6 +13,8 @@ struct input *make_input(struct input *inp_ptr, char *line) {
     inp_ptr->is_background_command = is_background_command(inp_ptr);
 
     if (create_command(inp_ptr) == -1) {
+        free(inp_ptr->argv);
+        free(inp_ptr);
         return NULL;
     }
 
@@ -71,7 +73,8 @@ struct input *expand_argv(struct input *inp_ptr) {
         }
 
         inp_ptr->argv = (char **) malloc(MEMORY_CHUNK);
-        if (inp_ptr == NULL) {
+        if (inp_ptr->argv == NULL) {
+            free(inp_ptr);
             return NULL;
         }
 

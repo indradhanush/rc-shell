@@ -17,5 +17,8 @@ run: build
 debug: build
 	gdb $(EXEC)
 
+valgrind: build
+	valgrind -v --leak-check=full ./$(EXEC)
+
 docker:
 	docker run --workdir $(PWD) --rm --volume $(PWD):$(PWD) -it gcc bash

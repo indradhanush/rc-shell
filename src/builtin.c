@@ -19,8 +19,9 @@ int is_builtin(struct builtin *builtin_ptr, char *command) {
     unsigned int i = 0;
 
     for(i=0; builtin_ptr->commands[i] != NULL; i++) {
-        if (strcmp(builtin_ptr->commands[i], command) == 0)
+        if (strcmp(builtin_ptr->commands[i], command) == 0) {
             return i;
+        }
     }
  
     return -1;

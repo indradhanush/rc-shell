@@ -85,7 +85,7 @@ int main() {
         if (child_pid == 0) {
             /* Set the default action for SIGINT in the child */
             if (sigaction(SIGINT, &default_s, NULL) == -1) {
-                perror("Error in setting action for SGIINT");
+                perror("Error in setting action for SIGINT");
                 exit(1);
             }
 
@@ -103,14 +103,12 @@ int main() {
 
         if (inp_ptr != NULL) {
             free(inp_ptr->argv);
+            free(inp_ptr->command);
             free(inp_ptr);
             inp_ptr = NULL;
+            free(command);
         }
     }
 
     return 0;
 }
-
-/* Input */
-
-/* Input ends */
