@@ -3,10 +3,11 @@ EXEC = rcshell
 LIBS = -lreadline
 
 SRC = \
-      signal_handling.c \
-      builtin.c \
-      input.c \
-      main.c \
+	common.c \
+	signal_handling.c \
+	builtin.c \
+	input.c \
+	main.c \
 
 build:
 	gcc -g $(LIBS) $(SRC) -o $(EXEC)

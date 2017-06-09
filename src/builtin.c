@@ -1,12 +1,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "common.h"
 #include "builtin.h"
 
 
 struct builtin *make_builtin() {
     static struct builtin s;
-    s.commands = malloc(2 * sizeof(char *));
+    s.commands = emalloc(2 * sizeof(char *));
     s.commands[0] = "cd";
     s.commands[1] = NULL;
 

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "common.h"
 #include "input.h"
 
 
@@ -67,17 +68,8 @@ struct input *expand_argv(struct input *inp_ptr) {
     int new_size_argv;
 
     if (inp_ptr == NULL) {
-        inp_ptr = (struct input *) malloc(sizeof(struct input ));
-        if (inp_ptr == NULL) {
-            return NULL;
-        }
-
-        inp_ptr->argv = (char **) malloc(MEMORY_CHUNK);
-        if (inp_ptr->argv == NULL) {
-            free(inp_ptr);
-            return NULL;
-        }
-
+        inp_ptr = emalloc(sizeof(struct input ));
+        inp_ptr->argv = emalloc(MEMORY_CHUNK);
         inp_ptr->size_argv = MEMORY_CHUNK;
         return inp_ptr;
     }
@@ -118,10 +110,7 @@ int create_command(struct input *inp_ptr) {
     } /* Remove the "&" from a background command */
 
     bytes = (sizeof(char *) * size);
-    inp_ptr->command = malloc(bytes);
-    if (!inp_ptr) {
-        return -1;
-    }
+    inp_ptr->command = emalloc(bytes);
 
     inp_ptr->command = memcpy(inp_ptr->command, inp_ptr->argv, bytes);
     if (!inp_ptr->command) {
