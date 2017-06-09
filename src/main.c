@@ -72,9 +72,9 @@ int main() {
             continue;
         }
 
-        if ((builtin_index = is_builtin(builtin_ptr, inp_ptr->argv[0])) != -1) {
-            if (builtin_ptr->functions[builtin_index](inp_ptr->argv[1]) == -1) {
-                perror(inp_ptr->argv[0]);
+        if ((builtin_index = is_builtin(builtin_ptr, inp_ptr->command[0])) != -1) {
+            if (builtin_ptr->functions[builtin_index](inp_ptr->command[1]) == -1) {
+                perror(inp_ptr->command[0]);
             }
             continue;
         }
@@ -89,14 +89,16 @@ int main() {
                 exit(1);
             }
 
-            result_execvp = execvp(inp_ptr->argv[0], inp_ptr->argv);
+            result_execvp = execvp(inp_ptr->command[0], inp_ptr->command);
             if (result_execvp == -1) {
-                perror(inp_ptr->argv[0]);
+                perror(inp_ptr->command[0]);
                 exit(1);
             }
             exit(0);
         } else {
-            wait_result = waitpid(child_pid, &stat_loc, WUNTRACED);
+            if (!inp_ptr->is_background_command) {
+                wait_result = waitpid(child_pid, &stat_loc, WUNTRACED);
+            }
         }
 
         if (inp_ptr != NULL) {

@@ -6,7 +6,7 @@
 
 struct builtin *make_builtin() {
     static struct builtin s;
-    s.commands = malloc(sizeof(2 * sizeof(char *)));
+    s.commands = malloc(2 * sizeof(char *));
     s.commands[0] = "cd";
     s.commands[1] = NULL;
 
