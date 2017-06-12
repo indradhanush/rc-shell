@@ -2,12 +2,13 @@
 #define builtin_h
 
 struct builtin {
-    char **commands;
-    int (*functions[]) (char *);
+    char *command;
+    int (*function) (char **);
 };
 
 struct builtin *make_builtin();
 int is_builtin(struct builtin *, char *);
-int cd(char *);
+int run_builtin(struct builtin *, int, char **);
+int cd(char **);
 
 #endif // builtin_h

@@ -42,7 +42,7 @@ int main() {
     parent_sigint.sa_flags = SA_RESTART;
 
     /* Setup builtins */
-    struct builtin *builtin_ptr = make_builtin();
+    struct builtin *builtins_ptr = make_builtin();
 
     while (1) {
         if (sigsetjmp(jmpbuf, 1) == CODE_SIGINT) {
@@ -59,21 +59,21 @@ int main() {
         }
 
         command = readline("rcsh> ");
-        inp_ptr = make_input(inp_ptr, command);
-
-        if (command == NULL) {
+        if (command == NULL) {  /* Exit on Ctrl-D */
             printf("\n");
             exit(0);
         }
 
+        inp_ptr = make_input(inp_ptr, command);
         if (inp_ptr == NULL) {
             // TODO: This also masks errors from functions lower down
             // in the invocation chain. Need to fix this.
             continue;
         }
 
-        if ((builtin_index = is_builtin(builtin_ptr, inp_ptr->command[0])) > -1) {
-            if (builtin_ptr->functions[builtin_index](inp_ptr->command[1]) < 0) {
+        builtin_index = is_builtin(builtins_ptr, *inp_ptr->command);
+        if (builtin_index >= 0) { /* If we found an index */
+            if (run_builtin(builtins_ptr, builtin_index, inp_ptr->command) < 0) {
                 perror(inp_ptr->command[0]);
             }
             continue;
@@ -83,10 +83,8 @@ int main() {
             perror("Error in fork");
             exit(1);
         }
-
         
-        // The child process
-        if (child_pid == 0) {
+        if (child_pid == 0) {   /* child */
             /* Set the default action for SIGINT in the child */
             if (sigaction(SIGINT, &default_s, NULL) < 0) {
                 perror("Error in setting action for SIGINT");
@@ -99,7 +97,7 @@ int main() {
                 exit(1);
             }
             exit(0);
-        } else {
+        } else {                /* parent */
             if (!inp_ptr->is_background_command) {
                 wait_result = waitpid(child_pid, &stat_loc, WUNTRACED);
             }

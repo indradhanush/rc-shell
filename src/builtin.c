@@ -6,28 +6,35 @@
 
 
 struct builtin *make_builtin() {
-    static struct builtin s;
-    s.commands = emalloc(2 * sizeof(char *));
-    s.commands[0] = "cd";
-    s.commands[1] = NULL;
+    static struct builtin *s;
+    s = emalloc(2 * sizeof(struct builtin));
+    s[0].command = "cd";
+    s[0].function = cd;
 
-    s.functions[0] = cd;
+    s[1].command = NULL;
+    s[1].function = NULL;
 
-    return &s;
+    return s;
 }
 
-int is_builtin(struct builtin *builtin_ptr, char *command) {
+int is_builtin(struct builtin *builtins_ptr, char *command) {
     unsigned int i = 0;
 
-    for(i=0; builtin_ptr->commands[i] != NULL; i++) {
-        if (strcmp(builtin_ptr->commands[i], command) == 0) {
+    while(builtins_ptr->command != NULL) {
+        if (strcmp(builtins_ptr->command, command) == 0) {
             return i;
         }
+        builtins_ptr++;
+        i++;
     }
  
     return -1;
 }
 
-int cd(char *path) {
-    return chdir(path);
+int run_builtin(struct builtin *builtins_ptr, int index, char **command) {
+    return builtins_ptr[index].function(command);
+}
+
+int cd(char **command) {
+    return chdir(command[1]);
 }
