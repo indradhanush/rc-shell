@@ -19,15 +19,16 @@ int main() {
     pid_t wait_result;
     int stat_loc;
     int result_execvp;
-    int builtin_index;
+
+    struct builtin *builtins_ptr;
+    struct builtin *builtin_found;
 
     struct input *inp_ptr = NULL;
-
-    /* Setup signal handling */
-
     struct sigaction ignore;
     struct sigaction default_s;
     struct sigaction parent_sigint;
+
+    /* Setup signal handling */
 
     ignore.sa_handler = SIG_IGN;
     sigemptyset(&ignore.sa_mask);
@@ -42,7 +43,7 @@ int main() {
     parent_sigint.sa_flags = SA_RESTART;
 
     /* Setup builtins */
-    struct builtin *builtins_ptr = make_builtin();
+    builtins_ptr = make_builtin();
 
     while (1) {
         if (sigsetjmp(jmpbuf, 1) == CODE_SIGINT) {
@@ -71,11 +72,9 @@ int main() {
             continue;
         }
 
-        builtin_index = is_builtin(builtins_ptr, *inp_ptr->command);
-        if (builtin_index >= 0) { /* If we found an index */
-            if (run_builtin(builtins_ptr, builtin_index, inp_ptr->command) < 0) {
-                perror(inp_ptr->command[0]);
-            }
+        builtin_found = is_builtin(builtins_ptr, inp_ptr->command);
+        if (builtin_found != NULL) { /* If we found an index */
+            run_builtin(builtin_found, inp_ptr->command);
             continue;
         }
 

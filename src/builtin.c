@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -17,22 +18,22 @@ struct builtin *make_builtin() {
     return s;
 }
 
-int is_builtin(struct builtin *builtins_ptr, char *command) {
-    unsigned int i = 0;
-
+struct builtin *is_builtin(struct builtin *builtins_ptr, char **command) {
     while(builtins_ptr->command != NULL) {
-        if (strcmp(builtins_ptr->command, command) == 0) {
-            return i;
+        if (strcmp(builtins_ptr->command, *command) == 0) {
+            return builtins_ptr;
         }
+
         builtins_ptr++;
-        i++;
     }
- 
-    return -1;
+
+    return NULL;
 }
 
-int run_builtin(struct builtin *builtins_ptr, int index, char **command) {
-    return builtins_ptr[index].function(command);
+void run_builtin(struct builtin *builtin_ptr, char **command) {
+    if (builtin_ptr->function(command) < 0) {
+        perror(builtin_ptr->command);
+    }
 }
 
 int cd(char **command) {
