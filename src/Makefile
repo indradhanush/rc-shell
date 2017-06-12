@@ -10,7 +10,7 @@ SRC = \
 	main.c \
 
 build:
-	gcc -g $(LIBS) $(SRC) -o $(EXEC)
+	gcc -g -Wall -Wpedantic $(LIBS) $(SRC) -o $(EXEC)
 
 run: build
 	./$(EXEC)
