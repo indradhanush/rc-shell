@@ -53,7 +53,7 @@ int main() {
         /* Handle SIGINT in the parent, so that it doesn't interrupt
            the process
         */
-        if (sigaction(SIGINT, &parent_sigint, NULL) == -1) {
+        if (sigaction(SIGINT, &parent_sigint, NULL) < 0) {
             perror("Error in setting action for SIGINT");
             exit(1);
         }
@@ -72,25 +72,29 @@ int main() {
             continue;
         }
 
-        if ((builtin_index = is_builtin(builtin_ptr, inp_ptr->command[0])) != -1) {
-            if (builtin_ptr->functions[builtin_index](inp_ptr->command[1]) == -1) {
+        if ((builtin_index = is_builtin(builtin_ptr, inp_ptr->command[0])) > -1) {
+            if (builtin_ptr->functions[builtin_index](inp_ptr->command[1]) < 0) {
                 perror(inp_ptr->command[0]);
             }
             continue;
         }
 
-        child_pid = fork();
+        if ((child_pid = fork()) < 0) {
+            perror("Error in fork");
+            exit(1);
+        }
+
         
         // The child process
         if (child_pid == 0) {
             /* Set the default action for SIGINT in the child */
-            if (sigaction(SIGINT, &default_s, NULL) == -1) {
+            if (sigaction(SIGINT, &default_s, NULL) < 0) {
                 perror("Error in setting action for SIGINT");
                 exit(1);
             }
 
             result_execvp = execvp(inp_ptr->command[0], inp_ptr->command);
-            if (result_execvp == -1) {
+            if (result_execvp < 0) {
                 perror(inp_ptr->command[0]);
                 exit(1);
             }

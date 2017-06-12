@@ -13,7 +13,7 @@ struct input *make_input(struct input *inp_ptr, char *line) {
 
     inp_ptr->is_background_command = is_background_command(inp_ptr);
 
-    if (create_command(inp_ptr) == -1) {
+    if (create_command(inp_ptr) < 0) {
         free(inp_ptr->argv);
         free(inp_ptr);
         return NULL;
