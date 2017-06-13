@@ -16,7 +16,6 @@
 int main() {
     char *command;
     pid_t child_pid;
-    pid_t wait_result;
     int stat_loc;
     int result_execvp;
 
@@ -65,6 +64,7 @@ int main() {
             exit(0);
         }
 
+        add_history(command);
         inp_ptr = make_input(inp_ptr, command);
         if (inp_ptr == NULL) {
             // TODO: This also masks errors from functions lower down
@@ -98,7 +98,7 @@ int main() {
             exit(0);
         } else {                /* parent */
             if (!inp_ptr->is_background_command) {
-                wait_result = waitpid(child_pid, &stat_loc, WUNTRACED);
+                waitpid(child_pid, &stat_loc, WUNTRACED);
             }
         }
 
