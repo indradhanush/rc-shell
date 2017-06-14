@@ -11,6 +11,7 @@
 #include "signal_handling.h"
 #include "builtin.h"
 #include "input.h"
+#include "job_control.h"
 
 
 int main() {
@@ -19,6 +20,8 @@ int main() {
     int stat_loc;
     int result_execvp;
 
+    struct parent *parent_ptr;
+
     struct builtin *builtins_ptr;
     struct builtin *builtin_found;
 
@@ -26,6 +29,14 @@ int main() {
     struct sigaction ignore;
     struct sigaction default_s;
     struct sigaction parent_sigint;
+
+    /* Job control */
+    parent_ptr = make_parent();
+    setup_terminal(parent_ptr);
+
+    printf("%d\n", parent_ptr->pid);
+    printf("%d\n", parent_ptr->pgid);
+    printf("%d\n", parent_ptr->fgid);
 
     /* Setup signal handling */
 
@@ -82,7 +93,7 @@ int main() {
             perror("Error in fork");
             exit(1);
         }
-        
+
         if (child_pid == 0) {   /* child */
             /* Set the default action for SIGINT in the child */
             if (sigaction(SIGINT, &default_s, NULL) < 0) {

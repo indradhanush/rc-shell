@@ -7,6 +7,7 @@ SRC = \
 	signal_handling.c \
 	builtin.c \
 	input.c \
+	job_control.c \
 	main.c \
 
 build:
