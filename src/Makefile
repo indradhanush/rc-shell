@@ -9,6 +9,7 @@ SRC = \
 	input.c \
 	job_control.c \
 	helpers.c \
+	shell.c \
 	main.c \
 
 build:

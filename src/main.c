@@ -13,6 +13,7 @@
 #include "input.h"
 #include "job_control.h"
 #include "helpers.h"
+#include "shell.h"
 
 
 int main() {
@@ -27,14 +28,16 @@ int main() {
 
     struct input *inp_ptr = NULL;
 
+    struct shell *shell_ptr = make_shell();
+
     /* Check if the terminal is in interactive mode */
-    if (isatty(STDIN_FILENO)) {
-        /* Job control */
+    if (shell_ptr->is_interactive) {
         parent_ptr = make_parent();
-
-        exit_on_error(setup_job_control(parent_ptr), NULL);
-
         exit_on_error(setup_parent_signals(), NULL);
+        exit_on_error(setup_job_control(parent_ptr), NULL);
+    } else {
+        perror("Shell is not interactive");
+        exit(1);
     }
 
     /* Setup builtins */
@@ -71,13 +74,19 @@ int main() {
 
         if (child_pid == 0) {   /* child */
             /* Setup signal handling in the child */
+            setpgid(0, parent_ptr->pgid);
+
             exit_on_error(setup_child_signals(), NULL);
+
+            tcsetpgrp(STDIN_FILENO, parent_ptr->fgid);
 
             exit_on_error(
                 execvp(inp_ptr->command[0], inp_ptr->command),
                 inp_ptr->command[0]
             );
         } else {                /* parent */
+            setpgid(child_pid, parent_ptr->pgid);
+
             if (!inp_ptr->is_background_command) {
                 waitpid(child_pid, &stat_loc, WUNTRACED);
             }
