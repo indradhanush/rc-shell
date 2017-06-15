@@ -12,13 +12,13 @@
 #include "builtin.h"
 #include "input.h"
 #include "job_control.h"
+#include "helpers.h"
 
 
 int main() {
     char *command;
     pid_t child_pid;
     int stat_loc;
-    int result_execvp;
 
     struct parent *parent_ptr;
 
@@ -26,31 +26,16 @@ int main() {
     struct builtin *builtin_found;
 
     struct input *inp_ptr = NULL;
-    struct sigaction ignore;
-    struct sigaction default_s;
-    struct sigaction parent_sigint;
 
-    /* Job control */
-    parent_ptr = make_parent();
-    setup_terminal(parent_ptr);
+    /* Check if the terminal is in interactive mode */
+    if (isatty(STDIN_FILENO)) {
+        /* Job control */
+        parent_ptr = make_parent();
 
-    printf("%d\n", parent_ptr->pid);
-    printf("%d\n", parent_ptr->pgid);
-    printf("%d\n", parent_ptr->fgid);
+        exit_on_error(setup_job_control(parent_ptr), NULL);
 
-    /* Setup signal handling */
-
-    ignore.sa_handler = SIG_IGN;
-    sigemptyset(&ignore.sa_mask);
-    ignore.sa_flags = SA_RESTART;
-
-    default_s.sa_handler = SIG_DFL;
-    sigemptyset(&default_s.sa_mask);
-    default_s.sa_flags = SA_RESTART;
-
-    parent_sigint.sa_handler = sigint_handler;
-    sigemptyset(&parent_sigint.sa_mask);
-    parent_sigint.sa_flags = SA_RESTART;
+        exit_on_error(setup_parent_signals(), NULL);
+    }
 
     /* Setup builtins */
     builtins_ptr = make_builtin();
@@ -59,14 +44,6 @@ int main() {
         if (sigsetjmp(jmpbuf, 1) == CODE_SIGINT) {
             printf("\n");
             continue;
-        }
-
-        /* Handle SIGINT in the parent, so that it doesn't interrupt
-           the process
-        */
-        if (sigaction(SIGINT, &parent_sigint, NULL) < 0) {
-            perror("Error in setting action for SIGINT");
-            exit(1);
         }
 
         command = readline("rcsh> ");
@@ -89,24 +66,17 @@ int main() {
             continue;
         }
 
-        if ((child_pid = fork()) < 0) {
-            perror("Error in fork");
-            exit(1);
-        }
+        child_pid = fork();
+        exit_on_error(child_pid, "Error in fork");
 
         if (child_pid == 0) {   /* child */
-            /* Set the default action for SIGINT in the child */
-            if (sigaction(SIGINT, &default_s, NULL) < 0) {
-                perror("Error in setting action for SIGINT");
-                exit(1);
-            }
+            /* Setup signal handling in the child */
+            exit_on_error(setup_child_signals(), NULL);
 
-            result_execvp = execvp(inp_ptr->command[0], inp_ptr->command);
-            if (result_execvp < 0) {
-                perror(inp_ptr->command[0]);
-                exit(1);
-            }
-            exit(0);
+            exit_on_error(
+                execvp(inp_ptr->command[0], inp_ptr->command),
+                inp_ptr->command[0]
+            );
         } else {                /* parent */
             if (!inp_ptr->is_background_command) {
                 waitpid(child_pid, &stat_loc, WUNTRACED);

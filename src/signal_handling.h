@@ -10,4 +10,7 @@ extern sigjmp_buf jmpbuf;
 
 void sigint_handler(int);
 
+int setup_parent_signals();
+int setup_child_signals();
+
 #endif // signal_handling_h

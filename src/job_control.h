@@ -10,6 +10,6 @@ struct parent {
 };
 
 struct parent *make_parent();
-int setup_terminal(struct parent *);
+int setup_job_control(struct parent *);
 
 #endif  /* job_control */
