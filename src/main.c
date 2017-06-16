@@ -50,7 +50,6 @@ int main() {
             continue;
         }
 
-        tcsetpgrp(STDIN_FILENO, parent_ptr->pgid);
         command = readline("rcsh> ");
         if (command == NULL) {  /* Exit on Ctrl-D */
             printf("\n");
@@ -76,9 +75,7 @@ int main() {
 
         if (child_pid == 0) {   /* child */
             child_ptr = make_process();
-
             setpgid(0, child_ptr->pid);
-
             child_ptr->pgid = getpgid(0);
 
             exit_on_error(setup_child_signals(), NULL);
@@ -96,18 +93,16 @@ int main() {
             );
         } else {                /* parent */
             child_ptr = make_process();
-
             setpgid(child_ptr->pid, child_ptr->pid);
-
             child_ptr->pgid = getpgid(child_ptr->pid);
 
-            exit_on_error(
-               tcsetpgrp(STDIN_FILENO, child_ptr->pgid),
-               "tcsetpgrp failed"
-            );
-
             if (!inp_ptr->is_background_command) {
+                exit_on_error(
+                   tcsetpgrp(STDIN_FILENO, child_ptr->pgid),
+                   "tcsetpgrp failed"
+                );
                 waitpid(child_pid, &stat_loc, WUNTRACED);
+                tcsetpgrp(STDIN_FILENO, parent_ptr->pgid);
             }
         }
 
