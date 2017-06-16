@@ -3,13 +3,13 @@
 
 #include <unistd.h>
 
-struct parent {
+struct process {
     pid_t pid;
     pid_t pgid;
     pid_t fgid;
 };
 
-struct parent *make_parent();
-int setup_job_control(struct parent *);
+struct process *make_process();
+int setup_job_control(struct process *);
 
 #endif  /* job_control */

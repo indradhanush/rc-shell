@@ -5,22 +5,18 @@
 #include "job_control.h"
 
 
-struct parent *make_parent() {
-    static struct parent s;
+struct process *make_process() {
+    static struct process s;
     s.pid = getpid();
 
     s.pgid = getpgid(0);
     s.fgid = tcgetpgrp(STDIN_FILENO);
 
-    if (s.pgid != s.fgid) {
-        kill(- s.pgid, SIGTTIN);
-    }
-
     return &s;
 }
 
 
-int setup_job_control(struct parent *ptr) {
+int setup_job_control(struct process *ptr) {
     int result;
 
     /* Set process group id to the process id */

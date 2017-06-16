@@ -21,7 +21,8 @@ int main() {
     pid_t child_pid;
     int stat_loc;
 
-    struct parent *parent_ptr;
+    struct process *parent_ptr;
+    struct process *child_ptr;
 
     struct builtin *builtins_ptr;
     struct builtin *builtin_found;
@@ -32,7 +33,7 @@ int main() {
 
     /* Check if the terminal is in interactive mode */
     if (shell_ptr->is_interactive) {
-        parent_ptr = make_parent();
+        parent_ptr = make_process();
         exit_on_error(setup_parent_signals(), NULL);
         exit_on_error(setup_job_control(parent_ptr), NULL);
     } else {
@@ -49,6 +50,7 @@ int main() {
             continue;
         }
 
+        tcsetpgrp(STDIN_FILENO, parent_ptr->pgid);
         command = readline("rcsh> ");
         if (command == NULL) {  /* Exit on Ctrl-D */
             printf("\n");
@@ -73,19 +75,36 @@ int main() {
         exit_on_error(child_pid, "Error in fork");
 
         if (child_pid == 0) {   /* child */
-            /* Setup signal handling in the child */
-            setpgid(0, parent_ptr->pgid);
+            child_ptr = make_process();
+
+            setpgid(0, child_ptr->pid);
+
+            child_ptr->pgid = getpgid(0);
 
             exit_on_error(setup_child_signals(), NULL);
 
-            tcsetpgrp(STDIN_FILENO, parent_ptr->fgid);
+            if (!inp_ptr->is_background_command) {
+                exit_on_error(
+                    tcsetpgrp(STDIN_FILENO, child_ptr->pgid),
+                    "tcsetpgrp failed"
+                );
+            }
 
             exit_on_error(
                 execvp(inp_ptr->command[0], inp_ptr->command),
                 inp_ptr->command[0]
             );
         } else {                /* parent */
-            setpgid(child_pid, parent_ptr->pgid);
+            child_ptr = make_process();
+
+            setpgid(child_ptr->pid, child_ptr->pid);
+
+            child_ptr->pgid = getpgid(child_ptr->pid);
+
+            exit_on_error(
+               tcsetpgrp(STDIN_FILENO, child_ptr->pgid),
+               "tcsetpgrp failed"
+            );
 
             if (!inp_ptr->is_background_command) {
                 waitpid(child_pid, &stat_loc, WUNTRACED);
