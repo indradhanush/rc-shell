@@ -34,21 +34,17 @@ int setup_parent_signals() {
 }
 
 int setup_child_signals() {
-    int result;
     struct sigaction s;
     s.sa_handler = SIG_DFL;
     sigemptyset(&s.sa_mask);
     s.sa_flags = SA_RESTART;
 
-    if ((result = sigaction(SIGINT, &s, NULL)) < 0) {
-        perror("Error in setting action for SIGINT");
-        return result;
-    }
-
-    if ((result = sigaction(SIGTSTP, &s, NULL)) < 0) {
-        perror("Error in setting action for SIGTSTP");
-        return result;
-    }
+    exit_on_error(sigaction(SIGINT, &s, NULL), "Error in setting action for SIGINT");
+    exit_on_error(sigaction(SIGTSTP, &s, NULL), "Error in setting action for SIGTSTP");
+    exit_on_error(sigaction(SIGTTIN, &s, NULL), "Error in setting action for SIGTTIN");
+    /* exit_on_error(sigaction(SIGTTOU, &s, NULL), "Error in setting action for SIGTTOU"); */
+    exit_on_error(sigaction(SIGCHLD, &s, NULL), "Error in setting action for SIGCHLD");
+    exit_on_error(sigaction(SIGQUIT, &s, NULL), "Error in setting action for SIGQUIT");
 
     return 0;
 }
