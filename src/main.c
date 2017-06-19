@@ -31,20 +31,20 @@ int main() {
 
     struct shell *shell_ptr = make_shell();
 
-    /* Check if the terminal is in interactive mode */
-    if (shell_ptr->is_interactive) {
-        parent_ptr = make_process();
-        exit_on_error(setup_parent_signals(), NULL);
-        exit_on_error(setup_job_control(parent_ptr), NULL);
-    } else {
-        perror("Shell is not interactive");
-        exit(1);
-    }
-
     /* Setup builtins */
     builtins_ptr = make_builtin();
 
     while (1) {
+        /* Check if the terminal is in interactive mode */
+        if (shell_ptr->is_interactive) {
+            parent_ptr = make_process();
+            exit_on_error(setup_parent_signals(), NULL);
+            exit_on_error(setup_job_control(parent_ptr), NULL);
+        } else {
+            perror("Shell is not interactive");
+            exit(1);
+        }
+
         if (sigsetjmp(jmpbuf, 1) == CODE_SIGINT) {
             printf("\n");
             continue;
