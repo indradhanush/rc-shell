@@ -25,4 +25,4 @@ valgrind: build
 	valgrind -v --leak-check=full ./$(EXEC)
 
 docker:
-	docker run --workdir $(PWD) --rm --volume $(PWD):$(PWD) -it gcc bash
+	docker run --workdir $(PWD) --rm --volume $(PWD):$(PWD) -it rcshell:latest bash

@@ -1,0 +1,66 @@
+strace: Process 340 attached
+pselect6(1, [0], NULL, NULL, NULL, {[], 8}) = 1 (in [0])
+read(0, "l", 1)                         = 1
+select(1, [0], NULL, [0], {tv_sec=0, tv_usec=0}) = 0 (Timeout)
+write(1, "l", 1)                        = 1
+pselect6(1, [0], NULL, NULL, NULL, {[], 8}) = 1 (in [0])
+read(0, "s", 1)                         = 1
+select(1, [0], NULL, [0], {tv_sec=0, tv_usec=0}) = 0 (Timeout)
+write(1, "s", 1)                        = 1
+pselect6(1, [0], NULL, NULL, NULL, {[], 8}) = 1 (in [0])
+read(0, "\r", 1)                        = 1
+write(1, "\n", 1)                       = 1
+ioctl(0, TCGETS, {B38400 opost isig -icanon -echo ...}) = 0
+ioctl(0, SNDCTL_TMR_STOP or TCSETSW, {B38400 opost isig icanon echo ...}) = 0
+ioctl(0, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+rt_sigaction(SIGINT, {sa_handler=0x400dc4, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f0a2d07c030}, {sa_handler=0x7f0a2d413c10, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, 8) = 0
+rt_sigaction(SIGTERM, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, {sa_handler=0x7f0a2d413c10, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, 8) = 0
+rt_sigaction(SIGHUP, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, {sa_handler=0x7f0a2d413c10, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, 8) = 0
+rt_sigaction(SIGALRM, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, {sa_handler=0x7f0a2d413c10, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, 8) = 0
+rt_sigaction(SIGWINCH, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, {sa_handler=0x7f0a2d413150, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f0a2d07c030}, 8) = 0
+clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f0a2d848e10) = 481
+getpid()                                = 340
+getpgid(0)                              = 340
+ioctl(0, TIOCGPGRP, [340])              = 0
+setpgid(340, 340)                       = 0
+getpgid(340)                            = 340
+ioctl(0, TIOCSPGRP, [340])              = 0
+wait4(481, [{WIFSTOPPED(s) && WSTOPSIG(s) == SIGTTOU}], WSTOPPED, NULL) = 481
+ioctl(0, TIOCSPGRP, [340])              = 0
+getpid()                                = 340
+getpgid(0)                              = 340
+ioctl(0, TIOCGPGRP, [340])              = 0
+rt_sigaction(SIGINT, {sa_handler=0x400dc4, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f0a2d07c030}, NULL, 8) = 0
+rt_sigaction(SIGTSTP, {sa_handler=SIG_IGN, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f0a2d07c030}, NULL, 8) = 0
+rt_sigaction(SIGTTIN, {sa_handler=SIG_IGN, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f0a2d07c030}, NULL, 8) = 0
+rt_sigaction(SIGTTOU, {sa_handler=SIG_IGN, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f0a2d07c030}, NULL, 8) = 0
+rt_sigaction(SIGCHLD, {sa_handler=SIG_IGN, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f0a2d07c030}, NULL, 8) = 0
+rt_sigaction(SIGQUIT, {sa_handler=SIG_IGN, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f0a2d07c030}, NULL, 8) = 0
+setpgid(340, 340)                       = 0
+getpgid(0)                              = 340
+ioctl(0, TIOCSPGRP, [340])              = 0
+ioctl(0, TIOCGPGRP, [340])              = 0
+rt_sigprocmask(SIG_BLOCK, NULL, [], 8)  = 0
+ioctl(0, TIOCGWINSZ, {ws_row=59, ws_col=270, ws_xpixel=0, ws_ypixel=0}) = 0
+ioctl(0, TIOCSWINSZ, {ws_row=59, ws_col=270, ws_xpixel=0, ws_ypixel=0}) = 0
+ioctl(0, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+ioctl(0, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+ioctl(0, SNDCTL_TMR_STOP or TCSETSW, {B38400 opost isig -icanon -echo ...}) = 0
+ioctl(0, TCGETS, {B38400 opost isig -icanon -echo ...}) = 0
+rt_sigprocmask(SIG_BLOCK, [HUP INT QUIT ALRM TERM TSTP TTIN TTOU], [], 8) = 0
+rt_sigaction(SIGINT, {sa_handler=0x7f0a2d413c10, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, {sa_handler=0x400dc4, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f0a2d07c030}, 8) = 0
+rt_sigaction(SIGTERM, {sa_handler=0x7f0a2d413c10, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, 8) = 0
+rt_sigaction(SIGHUP, {sa_handler=0x7f0a2d413c10, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, 8) = 0
+rt_sigaction(SIGQUIT, {sa_handler=0x7f0a2d413c10, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, {sa_handler=SIG_IGN, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f0a2d07c030}, 8) = 0
+rt_sigaction(SIGQUIT, {sa_handler=SIG_IGN, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f0a2d07c030}, {sa_handler=0x7f0a2d413c10, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, 8) = 0
+rt_sigaction(SIGALRM, {sa_handler=0x7f0a2d413c10, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, 8) = 0
+rt_sigaction(SIGTSTP, {sa_handler=0x7f0a2d413c10, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, {sa_handler=SIG_IGN, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f0a2d07c030}, 8) = 0
+rt_sigaction(SIGTSTP, {sa_handler=SIG_IGN, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f0a2d07c030}, {sa_handler=0x7f0a2d413c10, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, 8) = 0
+rt_sigaction(SIGTTOU, {sa_handler=0x7f0a2d413c10, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, {sa_handler=SIG_IGN, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f0a2d07c030}, 8) = 0
+rt_sigaction(SIGTTOU, {sa_handler=SIG_IGN, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f0a2d07c030}, {sa_handler=0x7f0a2d413c10, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, 8) = 0
+rt_sigaction(SIGTTIN, {sa_handler=0x7f0a2d413c10, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, {sa_handler=SIG_IGN, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f0a2d07c030}, 8) = 0
+rt_sigaction(SIGTTIN, {sa_handler=SIG_IGN, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f0a2d07c030}, {sa_handler=0x7f0a2d413c10, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, 8) = 0
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
+rt_sigaction(SIGWINCH, {sa_handler=0x7f0a2d413150, sa_mask=[], sa_flags=SA_RESTORER|SA_RESTART, sa_restorer=0x7f0a2d07c030}, {sa_handler=SIG_DFL, sa_mask=[], sa_flags=SA_RESTORER, sa_restorer=0x7f0a2d07c030}, 8) = 0
+write(1, "rcsh> ", 6)                   = 6
+pselect6(1, [0], NULL, NULL, NULL, {[], 8}
